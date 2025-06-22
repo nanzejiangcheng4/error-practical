@@ -13,7 +13,10 @@ const member: Member = reactive({
   points: 0,
   note: "",
 });
+
 const pending = ref(false);
+const noServerError = ref(true);
+
 const onAdd = async (): Promise<void> => {
   pending.value = true;
   try {
@@ -23,6 +26,9 @@ const onAdd = async (): Promise<void> => {
     });
     if (asyncData != null && asyncData.result == 1) {
       router.push({ name: "member-memberList" });
+    } else {
+      pending.value = false;
+      noServerError.value = false;
     }
   } finally {
     pending.value = false;
@@ -46,7 +52,12 @@ const onAdd = async (): Promise<void> => {
     <h2>会員情報追加</h2>
     <p v-if="pending">データ送信中。。。</p>
     <template v-else>
-      <p>情報を入力し、登録ボタンをクリックしてください。</p>
+      <p v-if="noServerError">
+        情報を入力し、登録ボタンをクリックしてください。
+      </p>
+      <p v-else>
+        サーバー処理中に障害が発生しました。もう一度登録を行なってください。
+      </p>
       <form v-on:submit.prevent="onAdd">
         <dl>
           <dt>

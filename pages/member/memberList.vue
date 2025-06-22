@@ -9,7 +9,7 @@ const asyncData = useLazyFetch("/member-management/members");
 const responseData = asyncData.data;
 const pending = asyncData.pending;
 const memberList = computed((): Member[] => {
-  // からの会員リスト配列を用意
+  // 空の会員リスト配列を用意
   let returnList: Member[] = [];
   // レスポンスJSONデータがnullでなければ
   if (responseData.value != null) {
@@ -19,6 +19,17 @@ const memberList = computed((): Member[] => {
 });
 const isEmptyList = computed((): boolean => {
   return memberList.value.length == 0;
+});
+const noServerError = computed((): boolean => {
+  let returnVal = false;
+  if (
+    asyncData.error.value == null &&
+    responseData.value != null &&
+    responseData.value.result == 1
+  ) {
+    returnVal = true;
+  }
+  return returnVal;
 });
 </script>
 
@@ -37,20 +48,23 @@ const isEmptyList = computed((): boolean => {
       >から
     </p>
     <p v-if="pending">データ取得中・・・・</p>
-    <section v-else>
-      <ul>
-        <li v-if="isEmptyList">会員情報は存在しません。</li>
-        <li v-for="member in memberList" v-bind:key="member.id">
-          <NuxtLink
-            v-bind:to="{
-              name: 'member-memberDetail-id',
-              params: { id: member.id },
-            }"
-          >
-            IDが{{ member.id }}の{{ member.name }}さん
-          </NuxtLink>
-        </li>
-      </ul>
-    </section>
+    <template v-else>
+      <section v-if="noServerError">
+        <ul>
+          <li v-if="isEmptyList">会員情報は存在しません。</li>
+          <li v-for="member in memberList" v-bind:key="member.id">
+            <NuxtLink
+              v-bind:to="{
+                name: 'member-memberDetail-id',
+                params: { id: member.id },
+              }"
+            >
+              IDが{{ member.id }}の{{ member.name }}さん
+            </NuxtLink>
+          </li>
+        </ul>
+      </section>
+      <p v-else>サーバーからデータ取得中に障害が発生しました。</p>
+    </template>
   </section>
 </template>
