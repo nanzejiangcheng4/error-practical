@@ -6,7 +6,7 @@ export default defineEventHandler(async (event): Promise<ReturnJSONMembers> => {
   // throw createError("擬似エラー発生");
   try {
     const body = await readBody(event);
-    throw createError("擬似エラー発生");
+    // throw createError("擬似エラー発生");
     const member = body as Member;
     let memberList = new Map<number, Member>();
     const storage = useStorage();
